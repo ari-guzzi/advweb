@@ -1,8 +1,15 @@
 h2{
     color: white;
+    text-align: center;
 }
 
 /* changing this color in JS */
 p{ 
     color:blue
+}
+
+#hoverDiv{
+    width: 100px; 
+    height: 100px; 
+    background-color: lightpink;
 }
