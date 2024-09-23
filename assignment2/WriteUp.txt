@@ -1,0 +1,30 @@
+List of Errors:
+
+In index.html:
+1 - moved script tag to end of body
+2 - changed round two legend to say Round Two instead of Round One
+
+In trivia.js:
+3 - Line 19:
+    There was a typo in document.getElementById('round-two') (forgot the 'w')
+4 - Line 34:
+    Changed FinalScore from constant to variable by changing const to let because it needs to mutable
+5 - Line 48:
+    Constants must be initalized. By making the line const score = 0, it fixes the error.
+6 - Line 48:
+    Changed score from constant to variable by changing const to let because it needs to mutable
+7 - Line 92: 
+    Changed the for loop to iterate through roundTwoQuestions.length instead of roundTwoQuestions.size.
+    The .size property does not exist for arrays in JS.
+8 - Line 97:
+    Changed === to == because === checks both the value and the type. 
+    Using === will always fail because the string isn't equal to the int.
+9 - Line 106: 
+    This text is written within single quotes; however, when you use you're it closes the string. 
+    There are two fixes I can think of, one is using "double quotes," the other is using a \ before the ' in you're. 
+    IE you\'re  
+10 - Line 144:
+    Changed sum from constant to variable by changing const to let because it needs to mutable
+
+Write Up:
+    
