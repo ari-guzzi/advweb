@@ -27,4 +27,27 @@ In trivia.js:
     Changed sum from constant to variable by changing const to let because it needs to mutable
 
 Write Up:
-    
+    Line 1 is creating a constant form with the form element from the DOM
+    Lines 3-4 are creating constants by selecting elements with the DOM by element id.
+    Lines 5-16 are creating the roundOneQuestions array that has an input, reaction, and an answer for two questions.
+    Lines 18-19 are creating constants by selecting elements with the DOM by element id.
+    Lines 20-31 are creating the roundTwoQuestions array that has an input, reaction, and an answer for two questions.
+    Lines 33-36 are creating a constant for a finish button and a score array and a variable for the final score.
+    Line 40 starts the function start game which unhides round one and hides the start button.
+    Lines 41-68:
+        It then iterates through the round one questions array through a for loop.
+        It creates a function for answerQuestion that determines 
+            if the input value is equal to the answer then score = 1, the reaction text says Congrats, adds the correct class to the question, and removes the incorrect class (ie toggles CSS classes for visual feedback).
+            if the value does not equal the answer then score = 1, the reaction text says Congrats, adds the incorrect class to the question, and removes the correct class (ie toggles CSS classes for visual feedback).
+        Then it either pushes the score onto the scores array or replaces the existing score at the current index, based on the length of the scores array
+    Lines 70-75 uses an event listener to trigger the answerQuestion function whenever the value of the input changes. Then it removes the change event listener as a cleanup function.
+    Line 77 submits using the form to go to the next round.
+
+    Lines 80-128 basically just does the same thing as 40-80 just for roundTwo instead of roundOne adjusted accordingly. 
+        This function also ensures that all first-round questions are deactivated before beginning round two
+    Line 130 starts the finish game function after submitting finish game to the form by the user hitting the button.
+    Lines 133-137 adds the number of total scores from round one and round two to a constant
+    Lines 141-142 removes the finish button after the user presses it and adds the final score
+    Lines 144-147 adds the number of correct scores to get a total sum.
+    Line 149 prints how many points the user got correct out of total possible points.
+
