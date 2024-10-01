@@ -1,4 +1,4 @@
-import _ from 'lodash';
+//import _ from 'lodash';
 
   function fetchBear() {
             const width = Math.floor(Math.random() * 301) + 600;  
