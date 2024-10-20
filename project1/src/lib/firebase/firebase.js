@@ -29,6 +29,6 @@ if (!getApps().length) {
 export const db = getFirestore(firebaseApp);
 export const auth = getAuth(firebaseApp);
 export const app = initializeApp(firebaseConfig);
-const STORAGE_FOLDER_PATH = 'gs://svelte-crud-firebase-82212.appspot.com';
+const STORAGE_FOLDER_PATH = 'gs://project1-8a6d0.appspot.com';
 export const storage = getStorage(app, STORAGE_FOLDER_PATH);
 

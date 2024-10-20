@@ -13,9 +13,10 @@ let uploaded = writable(null);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const folder = "user/";
+    const folder = "";//get userID path here to ave "attached" to user
     try {
       const auth = get(authStore);
+      console.log(auth);
       if (!auth.user) {
         throw new Error('User is not authenticated');
       }

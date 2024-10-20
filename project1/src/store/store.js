@@ -22,15 +22,15 @@ onAuthStateChanged(auth, (user) => {
 
 export const authHandlers = {
     signup: async (email, pass) => {
-        const auth = getAuth();
+        
         await createUserWithEmailAndPassword(auth, email, pass)
     },
     login: async (email, pass) => {
-        const auth = getAuth();
+       
         await signInWithEmailAndPassword(auth, email, pass)
     },
     logout: async () => {
-        const auth = getAuth();
+       
         await signOut(auth)
     }
 };
