@@ -2,49 +2,115 @@
 import { db } from "../../lib/firebase/firebase";
 import { getFile, uploadFile } from '../../store/store';
 import { authHandlers, authStore } from "../../store/store";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { writable, get} from 'svelte/store';
+import { onMount } from 'svelte';
+import { getStorage, ref, listAll, getDownloadURL } from 'firebase/storage';
+import { goto } from '$app/navigation';
 
 
-let selectedFile = null;
-let uploaded = writable(null);
+  const storage = getStorage(); // Initialize Firebase Storage
+  let fileLinks = writable([]); // Stores links to display in the UI
+  let loading = writable(false);
+  let error = writable(false);
+let uploadClicked = writable(false);
+  let selectedFile = writable(null);;
+  let uploaded = writable(null);
   let inputRef;
-  let error = false;
+  let fileUrl = '';
 
   const handleSubmit = async (event) => {
+    uploadClicked.set(true);
     event.preventDefault();
-    const folder = "";//get userID path here to ave "attached" to user
+    error.set(false);
     try {
       const auth = get(authStore);
-      console.log(auth);
       if (!auth.user) {
+        error.set(true);
+        uploadClicked.set(false);
         throw new Error('User is not authenticated');
       }
+      const folder = `${auth.user.uid}/`;
       const imagePath = await uploadFile(selectedFile, folder);
+      uploadClicked.set(false);
       const imageUrl = await getFile(imagePath);
       uploaded.set(imageUrl);
+      uploaded.set(fileUrl);
+      console.log('File uploaded successfully:', imageUrl);
     } catch (err) {
+      uploadClicked.set(false);
       console.error('File upload failed', err);
-      error = true;
+      error.set(true);
     }
   };
 
-
   async function saveData() {
-        try {
-            const userRef = doc(db, "users", $authStore.user.uid);
-            await setDoc(
-                userRef,
-                {
-                    files: fileInput,
-                },
-                { merge: true }
-            );
-        } catch (err) {
-            console.log("There was an error saving your information");
-            error = true;
-        }
+    try {
+      const auth = get(authStore);
+      if (!auth.user) {
+        throw new Error('User is not authenticated');
+      }
+
+      const userRef = doc(db, "users", auth.user.uid);
+      await setDoc(userRef, {
+        files: fileUrl // Assuming fileUrl contains the URL of the uploaded file
+      }, { merge: true });
+
+      console.log("File info saved successfully!");
+    } catch (err) {
+      console.error("There was an error saving your information", err);
+      error.set(false);
     }
+  }
+  async function fetchFiles(startAfter = 0, limit = 10) {
+    loading.set(true);
+    error.set(false);
+    fileLinks.set([]);
+
+    const auth = get(authStore);
+    console.log('Auth state:', auth);
+
+    if (!auth || !auth.user || !auth.user.uid) {
+        console.error('User is not authenticated');
+        error.set(true);
+        loading.set(false);
+        return;
+    }
+
+    const userFolderRef = ref(storage, `${auth.user.uid}/`);
+    console.log('Firebase Storage Path:', userFolderRef);
+
+    try {
+        const result = await listAll(userFolderRef);
+        console.log('Files in Folder:', result.items);
+
+        const urlPromises = result.items.map(itemRef => getDownloadURL(itemRef));
+        const urls = await Promise.all(urlPromises);
+        console.log('Fetched URLs:', urls);
+
+        fileLinks.set(urls);
+    } catch (err) {
+        console.error('Error fetching files:', err);
+        error.set(true);
+    } finally {
+        loading.set(false);
+    }
+}
+
+let selectedFileUrl = writable(null);
+
+function selectFile(url) {
+    selectedFileUrl.set(url);
+  }
+  function goToVisualizePage() {
+    const url = get(selectedFileUrl);
+    if (url) {
+      sessionStorage.setItem('selectedFileUrl', url); // Store selected file in sessionStorage
+      goto(`/chartboard?fileUrl=${encodeURIComponent(url)}`); // Navigate to visualization page
+    }
+}
+
+  onMount(fetchFiles);
 
 </script>
 <div class="mainContainer">
@@ -62,14 +128,44 @@ let uploaded = writable(null);
   </div>
 </div>
 <input
+  id="file-upload"
       type="file"
       bind:this={inputRef}
       on:change={(e) => {
         selectedFile = e.target.files[0];
       }}
     />
-    <button class="button" type="button" on:click={handleSubmit}>
-      Submit
+    <button class="uploadButton { $uploadClicked ? 'clicked' : '' }" type="button" on:click={handleSubmit}>
+      Upload
+    </button>  
+    <button class="fetchButton" on:click={fetchFiles} disabled={$loading}>Fetch My Files</button>
+    {#if $loading}
+      <p>Loading files  <i class="fa-solid fa-spinner loadingSpinner" /> </p>
+    {/if}
+    {#if $error}
+      <p>Error fetching files. Please try again.</p>
+    {/if}
+    {#if $fileLinks.length > 0}
+      <div>
+        <h3>Your Files:</h3>
+        <ul class="file-list">
+          {#each $fileLinks as fileLink}
+            <li class="file-item">
+              <div class="file-actions">
+                <a href={fileLink} target="_blank">View File</a>
+                <button 
+                class="selectButton {fileLink === $selectedFileUrl ? 'selected' : ''}" 
+                on:click={() => selectFile(fileLink)}>
+                Select
+              </button>
+              </div>
+            </li>
+          {/each}
+        </ul>
+      </div>
+    {/if}
+    <button class = "button" on:click={goToVisualizePage} disabled={$selectedFileUrl === null}>
+      Visualize
     </button>
     {#if $uploaded}
       <img src={$uploaded} class="my-5 max-w-[400px]" alt="upload file" />
@@ -79,24 +175,11 @@ let uploaded = writable(null);
   <svelte:head>
     <title>Upload File</title>
   </svelte:head>
-     <!-- <form on:submit={handleSubmit}>
-        <div class="group">
-          <label for="file">Upload your file</label>
-          <input
-            type="file"
-            id="file"
-            name="fileToUpload"
-            accept=".jpg, .jpeg, .png, .webp"
-            bind:this={fileInput}
-            required
-          />
-        </div>
-      
-        <button type="submit">Submit</button>
-      </form> -->
-
 
  <style>
+  #file-upload {
+    font-family: "Arapey", serif;
+  }
  .mainContainer {
     display: flex;
     flex-direction: column;
@@ -151,5 +234,90 @@ let uploaded = writable(null);
 
    .button:hover {
         background: plum;
+    }
+    .fetchButton {
+        background: darkorchid;
+        color: white;
+        border: none;
+        padding: 14px 0;
+        width: 20%;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1rem;
+        display: grid;
+        place-items: center;
+    }
+
+   .fetchButton:hover {
+        background: plum;
+    }
+    .uploadButton {
+        background: darkorchid;
+        color: white;
+        border: none;
+        padding: 14px 0;
+        width: 20%;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1rem;
+        display: grid;
+        place-items: center;
+    }
+    .uploadButton.clicked {
+      background: plum;
+    }
+   .uploadButton:hover {
+        background: plum;
+    }
+ ul {
+  list-style-type: upper-greek;
+  color:#f0f0f0;
+}
+.file-list li {
+    width: 10%;
+    margin-bottom: 8px; 
+    padding: 2px;
+    border-radius: 1px;
+  }
+
+  .file-list a {
+    background-color: #f0f0f0;
+    text-decoration: none; 
+    color: darkorchid;
+    font-weight: bold;
+  }
+
+  .file-list a:hover {
+    color: deeppink; 
+    text-decoration: underline;
+  }
+  .selectButton {
+    background: #ccc;
+    color: #000;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .selectButton:hover {
+    background: #bbb;
+  }
+
+  .selectButton.selected {
+    background: darkorchid;
+    color: white;
+  }
+  .loadingSpinner {
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
     }
 </style>

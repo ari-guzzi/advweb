@@ -11,13 +11,16 @@
 		"@sveltejs/adapter-node": "^5.2.5",
 		"@sveltejs/adapter-static": "^3.0.5",
 		"chart.js": "^4.4.5",
-		"firebase": "^9.0.0"
+		"firebase": "^9.0.0",
+		"papaparse": "^5.4.1",
+		"svelte-preprocess": "^6.0.3",
+		"xlsx": "^0.18.5"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^3.0.0",
 		"@sveltejs/kit": "^2.0.0",
-		"@sveltejs/vite-plugin-svelte": "^3.0.0",
-		"svelte": "^4.2.7",
+		"@sveltejs/vite-plugin-svelte": "^3.1.2",
+		"svelte": "^4.2.19",
 		"vite": "^5.0.3"
 	},
 	"type": "module"

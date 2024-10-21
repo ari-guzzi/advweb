@@ -37,8 +37,16 @@ export const authHandlers = {
 
 export const uploadFile = async (file, folder) => {
     try {
+      const fileExtension = file.name.split('.').pop().toLowerCase();
+      const allowedExtensions = ['csv', 'json', 'xml', 'xlsx', 'xls']; // Add allowed file extensions here
+      if (!allowedExtensions.includes(fileExtension)) {
+        throw new Error('File type not allowed');
+      }
      const filename = nanoid();
-     const storageRef = ref(storage, `${folder}${filename}.${file.name.split('.').pop()}`);
+
+  
+    const storageRef = ref(storage, `${folder}${filename}.${fileExtension}`);
+     //const storageRef = ref(storage, `${folder}${filename}.${file.name.split('.').pop()}`);
      const res = await uploadBytes(storageRef, file);
      return res.metadata.fullPath;
     } catch (error) {
