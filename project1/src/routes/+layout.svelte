@@ -62,7 +62,7 @@
 <style>
     .mainContainer {
        min-height: 100vh;
-       background: linear-gradient(to right, purple, pink);
+        background: rgb(190, 138, 190); /*linear-gradient(to right, rgb(190, 138, 190), pink); */
        color: white;
        position: relative;
        display: flex;

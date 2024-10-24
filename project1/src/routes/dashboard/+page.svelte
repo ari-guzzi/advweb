@@ -127,6 +127,9 @@ function selectFile(url) {
       >
   </div>
 </div>
+<p>To upload a new file, chose the file then click upload.</p>
+<p>To select your file, click fetch files then select. Click visualize to start graphing! </p>
+<p>Accepted files: csv, json, xml, xlsx, xls</p>
 <input
   id="file-upload"
       type="file"
@@ -148,20 +151,24 @@ function selectFile(url) {
     {#if $fileLinks.length > 0}
       <div>
         <h3>Your Files:</h3>
+        
         <ul class="file-list">
           {#each $fileLinks as fileLink}
             <li class="file-item">
               <div class="file-actions">
+                <div class = "viewFiles">
                 <a href={fileLink} target="_blank">View File</a>
                 <button 
                 class="selectButton {fileLink === $selectedFileUrl ? 'selected' : ''}" 
                 on:click={() => selectFile(fileLink)}>
                 Select
               </button>
+            </div>
               </div>
             </li>
           {/each}
         </ul>
+         
       </div>
     {/if}
     <button class = "button" on:click={goToVisualizePage} disabled={$selectedFileUrl === null}>
@@ -181,6 +188,7 @@ function selectFile(url) {
     font-family: "Arapey", serif;
   }
  .mainContainer {
+  font-family:  "Arapey", serif;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
@@ -196,6 +204,7 @@ function selectFile(url) {
         gap: 14px;
     }
     .headerContainer button {
+      font-family:  "Arapey", serif;
         background: darkorchid;
         color: white;
         padding: 10px 18px;
@@ -221,6 +230,7 @@ function selectFile(url) {
     justify-content: space-between;
 }
 .button {
+  font-family:  "Arapey", serif;
         background: darkorchid;
         color: white;
         border: none;
@@ -236,6 +246,7 @@ function selectFile(url) {
         background: plum;
     }
     .fetchButton {
+      font-family:  "Arapey", serif;
         background: darkorchid;
         color: white;
         border: none;
@@ -252,6 +263,7 @@ function selectFile(url) {
         background: plum;
     }
     .uploadButton {
+      font-family:  "Arapey", serif;
         background: darkorchid;
         color: white;
         border: none;
@@ -274,16 +286,15 @@ function selectFile(url) {
   color:#f0f0f0;
 }
 .file-list li {
-    width: 10%;
-    margin-bottom: 8px; 
+    width: 20%;
+    justify-content: center;
     padding: 2px;
     border-radius: 1px;
   }
 
   .file-list a {
-    background-color: #f0f0f0;
     text-decoration: none; 
-    color: darkorchid;
+    color: white;
     font-weight: bold;
   }
 
@@ -292,8 +303,8 @@ function selectFile(url) {
     text-decoration: underline;
   }
   .selectButton {
-    background: #ccc;
-    color: #000;
+    background: darkorchid;
+    color: white;
     padding: 5px 10px;
     border: none;
     border-radius: 4px;
@@ -301,11 +312,11 @@ function selectFile(url) {
   }
 
   .selectButton:hover {
-    background: #bbb;
+    background: plum;
   }
 
   .selectButton.selected {
-    background: darkorchid;
+    background: deeppink;
     color: white;
   }
   .loadingSpinner {
@@ -319,5 +330,9 @@ function selectFile(url) {
         to {
             transform: rotate(360deg);
         }
+    }
+    .viewFiles {
+        display: flex;
+        gap: 8px;
     }
 </style>
