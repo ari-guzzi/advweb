@@ -9,7 +9,7 @@ import { getStorage, ref, listAll, getDownloadURL } from 'firebase/storage';
 import { goto } from '$app/navigation';
 
 
-  const storage = getStorage(); // Initialize Firebase Storage
+  const storage = getStorage();
   let fileLinks = writable([]); // Stores links to display in the UI
   let loading = writable(false);
   let error = writable(false);
@@ -53,7 +53,7 @@ let uploadClicked = writable(false);
 
       const userRef = doc(db, "users", auth.user.uid);
       await setDoc(userRef, {
-        files: fileUrl // Assuming fileUrl contains the URL of the uploaded file
+        files: fileUrl
       }, { merge: true });
 
       console.log("File info saved successfully!");
@@ -106,7 +106,7 @@ function selectFile(url) {
     const url = get(selectedFileUrl);
     if (url) {
       sessionStorage.setItem('selectedFileUrl', url); // Store selected file in sessionStorage
-      goto(`/chartboard?fileUrl=${encodeURIComponent(url)}`); // Navigate to visualization page
+      goto(`/chartboard?fileUrl=${encodeURIComponent(url)}`); // Navigate to visualization page with the file URL
     }
 }
 

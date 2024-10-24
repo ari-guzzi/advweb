@@ -18,7 +18,7 @@
     let borderColor = writable('#4bc0c0');
 
     function goBack() {
-      goto(`/dashboard`); // Navigate to visualization page
+      goto(`/dashboard`); // Navigate to dashboard page
 }
 
     onMount(async () => {
@@ -36,7 +36,7 @@
                 rawData.set([]);
             }
         }
-        initializeChart();  // Initial chart setup
+        initializeChart(); 
     });
 
     function initializeChart() {
@@ -137,7 +137,7 @@ $: borderColor, () => {
     function createChart() {
     const ctx = canvas.getContext('2d');
     if (chart) {
-        chart.destroy(); // Properly destroy existing chart instances
+        chart.destroy();
     }
 
     const transformedData = transformDataForChart(getSelectedData($rawData, $selectedColumns), $xAxisColumn, $yAxisColumn);
@@ -155,7 +155,7 @@ $: borderColor, () => {
                     },
                     title: {
                         display: true,
-                        text: $xAxisColumn, // Ensure this is set to xAxisColumn
+                        text: $xAxisColumn,
                         font: {
                             size: 16,
                             weight: 'bold'
@@ -169,7 +169,7 @@ $: borderColor, () => {
                     beginAtZero: true,
                     title: {
                         display: true,
-                        text: $yAxisColumn, // Ensure this is set to yAxisColumn
+                        text: $yAxisColumn,
                         font: {
                             size: 16,
                             weight: 'bold',
@@ -193,7 +193,7 @@ $: borderColor, () => {
         dataset.borderColor = $borderColor;
     });
 
-    chart.update(); // Ensure to call update to reflect changes
+    chart.update(); 
 }
 
    
@@ -241,7 +241,7 @@ onDestroy(() => {
         {/if}
     </div>
     <label for="borderColorPicker">Choose Graph Color:</label>
-    <input type="color" id="borderColorPicker"bind:value={$borderColor}> <!-- Default color -->
+    <input type="color" id="borderColorPicker"bind:value={$borderColor}>
     <button class="colorButton" onclick="updateChartColor()">Update Color</button>
     
     <button class = "button" on:click={createChart}>Visualize Data</button>
