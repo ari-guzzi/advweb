@@ -16,6 +16,7 @@
     let xAxisColumn = writable('');
     let yAxisColumn = writable('');
     let borderColor = writable('#4bc0c0');
+    let segmentColors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40', '#FFCD56']; 
 
     function goBack() {
       goto(`/dashboard`); // Navigate to dashboard page
@@ -39,7 +40,7 @@
         initializeChart(); 
     });
 
-    function initializeChart() {
+    function initializeChart() { // Sets up a new chart or resets the existing one
         if(chart) chart.destroy();
         const ctx = canvas.getContext('2d');
         chart = new Chart(ctx, {
@@ -59,29 +60,20 @@
         });
     }
 
-    $: if ($rawData && $rawData.length > 0 && $xAxisColumn && $yAxisColumn) {
+    $: if ($rawData && $rawData.length > 0 && $xAxisColumn && $yAxisColumn) { // Updates the chart data whenever anything changes
         const data = transformDataForChart($rawData, $xAxisColumn, $yAxisColumn);
         chart.data = data;
         chart.update();
     }
 
-    function getSelectedData(data, selectedCols) {
+    function getSelectedData(data, selectedCols) { // Retrieves selected data based on column selections
         if (data.length === 0 || selectedCols.size === 0) return [];
         const colIndexes = Array.from(selectedCols).map(header => data[0].indexOf(header));
         return data.map(row => colIndexes.map(index => row[index]));
     }
-    // Handles changes to checkbox selections for data columns
-    function handleCheckboxChange(header, event) {
-        selectedColumns.update(current => {
-            const newSelection = new Set(current);
-            if (newSelection.has(header)) newSelection.delete(header);
-            else newSelection.add(header);
-            console.log("Updated Columns Selection:", Array.from(newSelection));
-            return newSelection;
-        });
-    }
 
-function transformDataForChart(data, xAxis, yAxis) {
+
+function transformDataForChart(data, xAxis, yAxis) { // Transforms raw data from datasheet into chart data format
         if (!data || data.length === 0 || !data[0]) {
             console.error('Data is not loaded or empty');
             return { labels: [], datasets: [] };
@@ -98,17 +90,34 @@ function transformDataForChart(data, xAxis, yAxis) {
 
         const labels = data.slice(1).map(row => row[xIndex] || '');
         const dataPoints = data.slice(1).map(row => row[yIndex] || 0);
+        const backgroundColors = dataPoints.map((_, index) => segmentColors[index % segmentColors.length]);
 
         return {
             labels,
             datasets: [{
                 label: `${xAxis} vs ${yAxis}`,
+                font: {
+                            size: 18, 
+                            fontWeight: 'bold'
+                        },
                 data: dataPoints,
-                backgroundColor: 'rgba(75, 192, 192, .2)',
+                backgroundColor: backgroundColors, // Makes different ones for pie and bar chart
+                //backgroundColor: 'rgba(75, 192, 192, .2)', // Makes all one background color
                 borderColor: $borderColor
-            }]
+            }],
+            plugins: {
+                legend: {
+                    labels: {
+                        font: {
+                            size: 18,
+                            fontWeight: 'bold' 
+                        }
+                    }
+                }
+            }
         };
     }
+
 
     function toggleColumn(column) {
         selectedColumns.update(current => {
@@ -124,7 +133,7 @@ function transformDataForChart(data, xAxis, yAxis) {
     createChart(); // Re-create the chart with the new color
 }
 
-$: borderColor, () => {
+$: borderColor, () => { // Updates chart's border color
     if (chart && $borderColor) {
         chart.data.datasets.forEach(dataset => {
             dataset.borderColor = $borderColor;
@@ -133,8 +142,7 @@ $: borderColor, () => {
     }
 };
 
-    // Creates a new chart with the current data
-    function createChart() {
+    function createChart() {  // Creates a new chart with the current data
     const ctx = canvas.getContext('2d');
     if (chart) {
         chart.destroy();
@@ -179,28 +187,49 @@ $: borderColor, () => {
             },
             plugins: {
                 legend: {
-                    position: 'top',
+                    position: 'bottom',
                 },
                 tooltip: {
                     enabled: true
+                },
+                title: {
+                    display: true,
+                    text: `${$xAxisColumn} vs ${$yAxisColumn}`, // Chart title
+                    font: {
+                        size: 24,
+                        weight: 'bold'
+                    },
+                    padding: 20,
+                    align: 'top'
                 }
             }
         }
     });
 
-    // Apply the border color dynamically
-    chart.data.datasets.forEach(dataset => {
+    chart.data.datasets.forEach(dataset => {  // Apply the border color
         dataset.borderColor = $borderColor;
     });
 
     chart.update(); 
 }
 
-   
-
 onDestroy(() => {
         if (chart) chart.destroy();
     });
+
+function downloadChart() { // Downloads the chart as an image
+    if (chart) {
+        const imageUrl = chart.toBase64Image(); 
+        const downloadLink = document.createElement('a');
+        downloadLink.href = imageUrl; 
+        downloadLink.download =  "my_chart.png";
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+    } else {
+        console.log("No chart available to download");
+    }
+}
 </script> 
 
 <div class="mainContainer">
@@ -211,7 +240,6 @@ onDestroy(() => {
       </button>
    
 </div>
-<p>Click Visualize Data after selecting your axes and color to see your chart! . </p><br>
     <div class="controls">
         <label for="chartType">Chart Type:</label>
         <select id="chartType" bind:value={$chartType}>
@@ -243,9 +271,9 @@ onDestroy(() => {
     <label for="borderColorPicker">Choose Graph Color:</label>
     <input type="color" id="borderColorPicker"bind:value={$borderColor}>
     <button class="colorButton" onclick="updateChartColor()">Update Color</button>
-    
-    <button class = "button" on:click={createChart}>Visualize Data</button>
-
+    <p>Click <strong>Visualize Data</strong> after selecting your axes and color to see your chart! </p><br>
+    <button class = "button" on:click={createChart}>Visualize Data</button><br>
+    <button class = "button" on:click={downloadChart}>Download Chart</button>
     <canvas bind:this={canvas}></canvas>
 
     <!-- Display data -->
@@ -263,6 +291,7 @@ onDestroy(() => {
         <p>No data or failed to load data.</p>
     {/if}
 </div>
+
 
 <style>
     .headerContainer button {
@@ -332,7 +361,7 @@ table {
     canvas {
       width: 100%;
       height: 25em;
-
+      background-color: white;
     }
 .controls{
     font-family: "Arapey", serif;
