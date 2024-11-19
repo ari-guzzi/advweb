@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/advweb/static/css/main.1b99a05d.css",
+    "main.js": "/advweb/static/js/main.ffcd082e.js",
+    "static/js/453.f1333ce4.chunk.js": "/advweb/static/js/453.f1333ce4.chunk.js",
+    "index.html": "/advweb/index.html",
+    "main.1b99a05d.css.map": "/advweb/static/css/main.1b99a05d.css.map",
+    "main.ffcd082e.js.map": "/advweb/static/js/main.ffcd082e.js.map",
+    "453.f1333ce4.chunk.js.map": "/advweb/static/js/453.f1333ce4.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.1b99a05d.css",
+    "static/js/main.ffcd082e.js"
+  ]
+}
