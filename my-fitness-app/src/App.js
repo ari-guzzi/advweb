@@ -19,7 +19,7 @@ function App() {
       <p>
         My 3 components are my app, the exercise form, and the exercise log.
         The exercise log is re-used with differing props. <br/>
-        My two pieces of state of an array of exercises and a total calories counter. <br/>
+        My two pieces of state are an array of exercises and a total calories counter. <br/>
       </p>
       <ExerciseForm addExercise={addExercise} />
       <ExerciseLog exercises={exercises} deleteExercise={deleteExercise} />
